@@ -44,10 +44,13 @@ module OmniAuth
       def callback_phase # rubocop:disable MethodLength
         fail(OmniAuth::NoSessionError, "Session Expired") if session["oauth"].nil?
 
-        request_token = ::OAuth::RequestToken.new(consumer, session["oauth"][name.to_s].delete("request_token"), session["oauth"][name.to_s].delete("request_secret"))
+        credentials = session["oauth"].delete(name.to_s) || {}
+        fail(OmniAuth::NoSessionError, "Session Expired") if credentials.dig('request_token').nil? || credentials.dig('request_secret').nil?
+
+        request_token = ::OAuth::RequestToken.new(consumer, credentials.dig('request_token'), credentials.dig('request_secret'))
 
         opts = {}
-        if session["oauth"][name.to_s]["callback_confirmed"]
+        if credentials.dig('callback_confirmed')
           opts[:oauth_verifier] = request["oauth_verifier"]
         else
           opts[:oauth_callback] = callback_url
