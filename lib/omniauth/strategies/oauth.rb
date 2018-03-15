@@ -1,5 +1,5 @@
-require "oauth"
-require "omniauth"
+require 'oauth'
+require 'omniauth'
 
 module OmniAuth
   module Strategies
@@ -25,9 +25,9 @@ module OmniAuth
       end
 
       def request_phase # rubocop:disable MethodLength
-        request_token = consumer.get_request_token({:oauth_callback => callback_url}, options.request_params)
-        session["oauth"] ||= {}
-        session["oauth"][name.to_s] = {"callback_confirmed" => request_token.callback_confirmed?, "request_token" => request_token.token, "request_secret" => request_token.secret}
+        request_token = consumer.get_request_token({ :oauth_callback => callback_url }, options.request_params)
+        session['oauth'] ||= {}
+        session['oauth'][name.to_s] = { 'callback_confirmed' => request_token.callback_confirmed?, 'request_token' => request_token.token, 'request_secret' => request_token.secret }
 
         if request_token.callback_confirmed?
           redirect request_token.authorize_url(options[:authorize_params])
@@ -42,16 +42,16 @@ module OmniAuth
       end
 
       def callback_phase # rubocop:disable MethodLength
-        fail(OmniAuth::NoSessionError, "Session Expired") if session["oauth"].nil?
+        fail(OmniAuth::NoSessionError, 'Session Expired') if session['oauth'].nil?
 
-        credentials = session["oauth"].delete(name.to_s) || {}
-        fail(OmniAuth::NoSessionError, "Session Expired") if credentials.dig('request_token').nil? || credentials.dig('request_secret').nil?
+        credentials = session['oauth'].delete(name.to_s) || {}
+        fail(OmniAuth::NoSessionError, 'Session Expired') if credentials.dig('request_token').nil? || credentials.dig('request_secret').nil?
 
         request_token = ::OAuth::RequestToken.new(consumer, credentials.dig('request_token'), credentials.dig('request_secret'))
 
         opts = {}
         if credentials.dig('callback_confirmed')
-          opts[:oauth_verifier] = request["oauth_verifier"]
+          opts[:oauth_verifier] = request['oauth_verifier']
         else
           opts[:oauth_callback] = callback_url
         end
@@ -69,14 +69,14 @@ module OmniAuth
       end
 
       credentials do
-        {"token" => access_token.token, "secret" => access_token.secret}
+        { 'token' => access_token.token, 'secret' => access_token.secret }
       end
 
       extra do
-        {"access_token" => access_token}
+        { 'access_token' => access_token }
       end
     end
   end
 end
 
-OmniAuth.config.add_camelization "oauth", "OAuth"
+OmniAuth.config.add_camelization 'oauth', 'OAuth'
